@@ -1,0 +1,19 @@
+{
+    "java.project.sourcePaths": [
+        "src/java",
+        "src/lib"
+    ],
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "src/lib/smtp.jar",
+        "src/lib/pop3.jar",
+        "src/lib/mailapi.jar",
+        "src/lib/javax.mail.jar",
+        "src/lib/imap.jar",
+        "src/lib/hamcrest-core-1.3.jar",
+        "src/lib/gimap.jar",
+        "src/lib/dsn.jar",
+        "src/lib/activation.jar",
+        "src/lib/junit-4.13.2.jar"
+    ]
+}
