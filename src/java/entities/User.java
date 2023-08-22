@@ -3,7 +3,7 @@ package entities;
 /// on a real bank application, are applicated a http request for a database
 /// so the random import are inutil;
 import java.util.Random;
-import application.Utilities;
+//import application.Utilities;
 
 public class User {
     // --- AccountId generator with 'random' lib
