@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
 import entities.User;
-
 import application.Utilities;
 import application.enums.Process;
 
@@ -23,9 +22,9 @@ public class ProcessManager {
         int limit = 5;
         try {
             if (length > 0) {
-                String result = StringRandomizer.newRString(limit);
+                String result = StringRandomizer.newRString(limit, '*');
                 for (int i = 0; i < (length - 1); i++) {
-                    result += "-" + StringRandomizer.newRString(limit);
+                    result += "-" + StringRandomizer.newRString(limit, '*');
                 }
                 return result;
             }else{
@@ -39,7 +38,6 @@ public class ProcessManager {
     public User Init() {
         System.out.println(" * Process ID: " + processId + " Innitiated on moment " + moment);
         // instantiates the TestResult variable and a list to after receive the input result
-        String testResult = "";
         List<Boolean> values = new ArrayList<>();
         List<String> valideInputResultList = new ArrayList<>();
         int vcheckerCount = 0;
@@ -58,11 +56,10 @@ public class ProcessManager {
             status = Process.GETTING_DATA_FROM_INPUT;
             System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
             // opens the input to receive data from user
-            valideInputResultList = valideInput();
+            valideInputResultList = userDataInput();
             for (int j = 0; j < valideInputResultList.size(); j++) {
                 if(j<4){
                     values.add(Boolean.valueOf(valideInputResultList.get(j)));
-                    System.out.println(valideInputResultList.get(j));
                 }
                 else if(j==4) {
                     UserName = valideInputResultList.get(j);
@@ -76,6 +73,7 @@ public class ProcessManager {
                 //System.out.println(valideInputResultList.get(j));
             }
             status = Process.VALIDATING_DATA;
+            System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
             for (boolean boolean1 : values) {
                 if (boolean1) {
                     Thread.sleep(100);
@@ -85,28 +83,59 @@ public class ProcessManager {
             // Verify if the serverStatusCode received from server is equal to 200 or 201,
             // if not, serverStatusCode is changed to failed.
             if (vcheckerCount == 4) {
+
                 status = Process.VALIDATION_SUCESS;
-            }else if (199 >= 202){
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
+                status = Process.SENDING_CONFIRMATION_EMAIL;
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
+                String ConfCode = StringRandomizer.newRString(6, 'c');
+                String confMessage = String.format("Prezado usuário %s%nO Javander recebeu uma solicitação para usar %s como o e-mail de login da Conta Javander.%nUse este código para concluir a configuração da Conta: %s%nSe você não reconhece %s, ignore este e-mail.", UserName,UserEmail,ConfCode,UserEmail);
+                try {
+                    EmailSender email = new EmailSender();
+                    email.sendEmail("qnuoklgmivrdzknq", "javander.bank@gmail.com", UserEmail, confMessage, "Javander Auth Email Confirmation");
+                } catch (Exception e) {
+                    status = Process.EMAIL_NOT_ARRIVED_TO_DESTINATION;
+                    System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
+                    System.err.println(e.getMessage());
+                    throw new Exception(e.getMessage());
+                }
+
+                status = Process.CONFIRMATION_EMAIL_ARRIVED;
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
+                status = Process.WAITING_CONFIRMATION_CODE;
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+                System.out.println("Put the six digits code below: ");
+                if (confCodeString().equals(ConfCode)) {
+                    status = Process.EMAIL_CONFIRMED;
+                    System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+                }else{
+                    status = Process.INVALID_CODE;
+                    System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+                }
+
+            }else if (Integer.valueOf(statusCode) >= 202){
+
                 status = Process.GET_DATA_FAILED;
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
                 throw new Exception(String.valueOf(statusCode));
             }else if (vcheckerCount < 4){
+
                 status = Process.VALIDATION_FAILED;
+                System.out.println("\n * " + status + " -- " + fmtr.format(LocalDateTime.now()));
+
                 throw new Exception(String.valueOf(statusCode));
-            }
-            testResult += "\n * " + status + " -- " + fmtr.format(LocalDateTime.now());
-            if (status == Process.VALIDATION_SUCESS) {
-                status = Process.SENDING_CONFIRMATION_EMAIL;
-                EmailSender email = new EmailSender();
-                email.sendEmail("qnuoklgmivrdzknq", "javander.bank@gmail.com", UserEmail, processId, "Javander Auth Email Confirmation");
-                testResult += "\n * " + status + " -- " + fmtr.format(LocalDateTime.now());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println(testResult);
         return new User(UserName, UserPass, UserCPF, UserEmail);
     }
-    private static List<String> valideInput(){
+    private static List<String> userDataInput(){
         boolean vn = false,vp = false,vc = false,ve = false;
         List<String> result = new ArrayList<>();
         //Scanner sc = new Scanner(System.in);
@@ -148,5 +177,11 @@ public class ProcessManager {
         result.add(cpf);
         result.add(email);
         return result;
+    }
+    private static String confCodeString(){
+        Scanner s = new Scanner(System.in);
+        String code = String.valueOf(s.nextInt());
+        s.close();
+        return code;
     }
 }

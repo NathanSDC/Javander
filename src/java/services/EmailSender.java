@@ -15,7 +15,7 @@ public class EmailSender {
 		props.put("mail.smtp.user", rem);
 		props.put("mail.smtp.host", "smtp.gmail.com");
 		props.put("mail.smtp.port", "25");
-		props.put("mail.debug", "true");
+		//props.put("mail.debug", "true");
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
 		props.put("mail.smtp.EnableSSL.enable", "true");
@@ -31,8 +31,6 @@ public class EmailSender {
 			}
 		});
 
-		session.setDebug(true);
-
 		try {
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(rem));
@@ -43,7 +41,7 @@ public class EmailSender {
 			message.setText(msg);
 			Transport.send(message);
 		} catch (Exception e) {
-			System.out.println("Err");
+			System.err.println(e.getMessage());
 		}
 
 	}

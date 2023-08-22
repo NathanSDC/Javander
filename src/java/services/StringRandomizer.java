@@ -1,15 +1,19 @@
 package services;
 
 public class StringRandomizer {
-    public static String newRString(int length) {
+    public static String newRString(int length, char type) {
         // ~6.471.002 possibilities with no especial characters
-        // ~10.424.128 possibilities with the especial characters  // i dont need this
+        // ~10.424.128 possibilities with the especial characters ("@#%&*+")  // i dont need this
+        String AlphaNumericString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvxyz";
+        if (type == '*') {
+            AlphaNumericString =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + //Uppercase
+            "0123456789" + // Numerals
+            "abcdefghijklmnopqrstuvxyz"; //Lowercase
+        } else if(type == 'c'){
+            AlphaNumericString = "0123456789";// Numerals
+        }
 
-        String AlphaNumericString =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + //Uppercase
-        "0123456789" + // Numerals
-        "abcdefghijklmnopqrstuvxyz"; //Lowercase
-        /* +"@#%&*+"; */// Especial characters
         
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
@@ -17,5 +21,6 @@ public class StringRandomizer {
             sb.append(AlphaNumericString.charAt(index));
         }
         return sb.toString();
+        
     }
 }
